@@ -27,7 +27,7 @@ const initialData = {
   phone: "123456",
   imageURL:
     "https://images.pexels.com/photos/268533/pexels-photo-268533.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-  showTable: false,
+  showTable: true,
   link: {
     url: "https://www.google.com/",
     label: "Link to Google",
@@ -56,9 +56,21 @@ export default function Home() {
   };
 
   const generateFile = async () => {
+    if(!file){
+      alert("please Select docx file first");
+      return;
+    }
     const template = await readFileIntoArrayBuffer(file);
     // const commands = await listCommands(template, ["{", "}"]);
     // console.log({ commands });
+    let templateData;
+    try {
+      templateData = JSON.parse(data);
+    } catch (e) {}
+    if (!templateData) {
+      alert("please enter valid json string");
+      return;
+    }
     const report = await createReport({
       template,
       additionalJsContext: {
@@ -73,7 +85,7 @@ export default function Home() {
       errorHandler: (err, command_code) => {
         return "command failed!";
       },
-      data: data,
+      data: templateData,
     });
     saveDataToFile(
       report,
@@ -96,7 +108,9 @@ export default function Home() {
       }}
     >
       <h1>Docx Example</h1>
-      <a href="/example.docx" download="example" >Example File</a>
+      <a href="/example.docx" download="example">
+        Example File
+      </a>
       <input
         type="file"
         onChange={onTemplateChosen}
@@ -105,7 +119,7 @@ export default function Home() {
       <textarea
         value={data}
         onChange={(e) => setData(e.target.value)}
-        rows={5}
+        rows={8}
       />
       <button
         type="button"
